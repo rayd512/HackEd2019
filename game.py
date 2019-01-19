@@ -1,16 +1,23 @@
-import pygame, os, colors
+import pygame, os, colors, char
 
 def main():
     WIDTH = 800
     HEIGHT = 600
     FPS = 60
 
+    player1 = char.Char(WIDTH, HEIGHT)
+    all_players = pygame.sprite.Group()
+    all_players.add(player1)
+
+
     pygame.init()
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    # background = pygame.image.load("Background.png")
+    pygame.display.set_caption("Tweet Jump")
+    background1 = background2 = pygame.image.load("full-background_scaled.png")
     clock = pygame.time.Clock()
-
+    move1 = 0
+    move2 = 1200
     running = True
     while running:
         # keep loop running at the right speed
@@ -22,10 +29,19 @@ def main():
                 running = False
                 pygame.quit()
             if event.type == pygame.KEYDOWN:
-                if event.key == K_ESCAPE:
+                if event.key == pygame.K_ESCAPE:
                     main()
         screen.fill(colors.black)
-
+        move1 -= 1
+        move2 -= 1
+        screen.blit(background1, (move1,0))
+        screen.blit(background2, (move2,0))
+        all_players.update(WIDTH, HEIGHT)
+        all_players.draw(screen)
+        if move2 == -1200:
+            move2 = 1200
+        if move1 == -1200:
+            move1 = 1200
         pygame.display.flip()
     pygame.quit()
 
