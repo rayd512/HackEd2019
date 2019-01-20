@@ -3,7 +3,7 @@ import tweepy
 import threading
 import time
 import random
-
+import main_menu
 
 class TweetStream(threading.Thread):
     consumer_key = 'G3LVy1Ib9hiJiUULAOzS3rQou'
@@ -75,6 +75,9 @@ def main():
     tweet_stream.tags = ['triump', '@realDonaldTrump']
     tweet_stream.start()
 
+    
+    main_menu.menu(screen)
+    
     while running:
         # keep loop running at the right speed
         clock.tick(FPS)
