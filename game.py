@@ -1,9 +1,11 @@
-import pygame, os, colors, char
+
 import tweepy
 import threading
 import time
 import random
 import main_menu
+import pygame, os, colors, char, genText
+
 
 class TweetStream(threading.Thread):
     consumer_key = 'G3LVy1Ib9hiJiUULAOzS3rQou'
@@ -50,6 +52,7 @@ class TweetStream(threading.Thread):
             self.current_tweets = self.cached_tweets[self.cached_index: self.cached_index + 10]
             self.cached_index += 10
         random.shuffle(self.current_tweets)
+
 def main():
     WIDTH = 800
     HEIGHT = 600
@@ -65,6 +68,16 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Tweet Jump")
     background1 = background2 = pygame.image.load("full-background_scaled.png")
+
+    
+    player1 = char.Char(WIDTH, HEIGHT)
+    all_players = pygame.sprite.Group()
+    all_players.add(player1)
+    text = genText.Text("Hello", 800, 250, colors.black)
+    all_text = pygame.sprite.Group()
+    all_text.add(text)
+
+
     clock = pygame.time.Clock()
     move1 = 0
     move2 = 1200
@@ -92,6 +105,8 @@ def main():
                     main()
         
         tweets = tweet_stream.current_tweets
+        for txt in tweets:
+            all_text.add(genText)
         print(tweets)
         screen.fill(colors.black)
         move1 -= 1
@@ -99,7 +114,9 @@ def main():
         screen.blit(background1, (move1,0))
         screen.blit(background2, (move2,0))
         all_players.update(WIDTH, HEIGHT)
+        all_text.update()
         all_players.draw(screen)
+        all_text.draw(screen)
         if move2 == -1200:
             move2 = 1200
         if move1 == -1200:
