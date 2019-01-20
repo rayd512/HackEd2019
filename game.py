@@ -18,7 +18,7 @@ def main():
     player1 = char.Char(WIDTH, HEIGHT)
     all_players = pygame.sprite.Group()
     all_players.add(player1)
-    text = genText.Text("Hello", 800, 250, 120, 60, colors.black)
+    text = genText.Text("Hello", 800, 250, 120, 60, colors.black, 40)
     all_text = pygame.sprite.Group()
     all_text.add(text)
 
@@ -27,6 +27,7 @@ def main():
     move1 = 0
     move2 = 1200
     running = True
+    SCROLL_SPEED = 1
     while running:
         # keep loop running at the right speed
         clock.tick(FPS)
@@ -40,14 +41,14 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     main()
         screen.fill(colors.black)
-        move1 -= 1
-        move2 -= 1
+        move1 -= SCROLL_SPEED
+        move2 -= SCROLL_SPEED
         screen.blit(background1, (move1,0))
         screen.blit(background2, (move2,0))
         all_players.update(WIDTH, HEIGHT)
         all_text.update()
         all_players.draw(screen)
-        all_text.draw(screen)
+        all_text.draw(screen, SCROLL_SPEED)
         if move2 == -1200:
             move2 = 1200
         if move1 == -1200:
