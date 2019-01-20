@@ -14,11 +14,11 @@ def main():
     pygame.display.set_caption("Tweet Jump")
     background1 = background2 = pygame.image.load("full-background_scaled.png")
 
-    
+    SCROLL_SPEED = 1
     player1 = char.Char(WIDTH, HEIGHT)
     all_players = pygame.sprite.Group()
     all_players.add(player1)
-    text = genText.Text("Hello", 800, 250, 120, 60, colors.black, 40)
+    text = genText.Text("Hello", 800, 250, colors.black, 40)
     all_text = pygame.sprite.Group()
     all_text.add(text)
 
@@ -27,7 +27,7 @@ def main():
     move1 = 0
     move2 = 1200
     running = True
-    SCROLL_SPEED = 1
+    
     while running:
         # keep loop running at the right speed
         clock.tick(FPS)
@@ -46,9 +46,9 @@ def main():
         screen.blit(background1, (move1,0))
         screen.blit(background2, (move2,0))
         all_players.update(WIDTH, HEIGHT)
-        all_text.update()
+        all_text.update(SCROLL_SPEED)
         all_players.draw(screen)
-        all_text.draw(screen, SCROLL_SPEED)
+        all_text.draw(screen)
         if move2 == -1200:
             move2 = 1200
         if move1 == -1200:
