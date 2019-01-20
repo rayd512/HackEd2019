@@ -1,1 +1,108 @@
-nothing
+import pygame, os, colors, char
+import tweepy
+import threading
+import time
+import random
+
+
+class TweetStream(threading.Thread):
+    consumer_key = 'G3LVy1Ib9hiJiUULAOzS3rQou'
+    consumer_secret = 'RQPvKxZcSmqLvizGIEJZWnDCWqZwfsfucvflNdRerJEkxQfWzw'
+    access_token = '895545968027770880-RO1tkNqqdG0wibcPJOtKmAozKMdDvfa'
+    access_token_secret = 'AkQRCqpobzYWeHys8YgPIcgfKfPYIjXjZryiYuRD6nDdI'
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.daemon = True
+
+        auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
+        auth.set_access_token(self.access_token, self.access_token_secret)
+
+        self.api = tweepy.API(auth)
+        self.current_tweets = []
+        self.prev_tweets = []
+        self.tags = []
+        self.limit = 10
+        self.cache_limit = 50
+
+        self.cached_tweets = []
+        self.cached_index = 0
+    def run(self):
+        while True:
+            time.sleep(5)
+            self.get_current_new_tweets(self.tags)
+
+    def get_current_new_tweets(self, tags):
+        # print("getting text")
+        if self.cached_index >= 50 or len(self.cached_tweets) < 1:
+            # print("new tweetsn\n\n")
+            new_cached = []
+            for tag in tags:
+                search = tweepy.Cursor(self.api.search, q="what", result_type="mixed", lang="en", show_user=False).items(self.cache_limit)
+                print("getting tweets")
+                new_cached.extend([info.text for info in list(search)])
+
+            self.cached_tweets = new_cached
+            self.current_tweets = new_cached[:self.limit]
+            self.cached_index = 10
+        else:
+            # print("old tweets\n\n\n")
+            self.current_tweets = self.cached_tweets[self.cached_index: self.cached_index + 10]
+            self.cached_index += 10
+        random.shuffle(self.current_tweets)
+def main():
+    WIDTH = 800
+    HEIGHT = 600
+    FPS = 60
+
+    player1 = char.Char(WIDTH, HEIGHT)
+    all_players = pygame.sprite.Group()
+    all_players.add(player1)
+
+
+    pygame.init()
+    os.environ['SDL_VIDEO_CENTERED'] = '1'
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Tweet Jump")
+    background1 = background2 = pygame.image.load("full-background_scaled.png")
+    clock = pygame.time.Clock()
+    move1 = 0
+    move2 = 1200
+    running = True
+
+    # twitter fetching thread
+    tweet_stream = TweetStream()
+    tweet_stream.tags = ['triump', '@realDonaldTrump']
+    tweet_stream.start()
+
+    while running:
+        # keep loop running at the right speed
+        clock.tick(FPS)
+        
+        # Process exit event
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    main()
+        
+        tweets = tweet_stream.current_tweets
+        print(tweets)
+        screen.fill(colors.black)
+        move1 -= 1
+        move2 -= 1
+        screen.blit(background1, (move1,0))
+        screen.blit(background2, (move2,0))
+        all_players.update(WIDTH, HEIGHT)
+        all_players.draw(screen)
+        if move2 == -1200:
+            move2 = 1200
+        if move1 == -1200:
+            move1 = 1200
+        pygame.display.flip()
+    pygame.quit()
+
+if __name__ == '__main__':
+    main()
