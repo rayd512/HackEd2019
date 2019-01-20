@@ -12,30 +12,34 @@ class Char(pygame.sprite.Sprite):
         self.image = self.images_default[0]
         self.rect = self.image.get_rect()
         self.rect.x = 80
-        self.rect.y = HEIGHT - 153
+        self.rect.bottom = 250
         self.score = 0
         self.jumpwait = 0
         self.animation = 1
         self.animationtimer = 0
-        self.inJump = 0
+        self.isJump = 0
         self.NextJump = 40
-    def update(self, WIDTH, HEIGHT):
+        self.oldY = 0
+        self.vel = 8
+        self.mass = 2
+    def update(self, WIDTH, HEIGHT, player, group2):
         keystate = pygame.key.get_pressed()
-        if keystate[pygame.K_SPACE] and self.inJump == 0 and self.NextJump > 40:
-            self.jumpwait = 0
-            self.rect.y = HEIGHT - 200
+        if keystate[pygame.K_SPACE] and self.isJump == 0 and self.NextJump > 40:
+            self.isJump = 1
+        if self.isJump == 1:
             self.animation = 0
-            self.inJump = 1
-            self.NextJump = 0
-
-        
-        if self.jumpwait > 40:
-            self.rect.y += 9.81
-            if self.rect.y >= HEIGHT - 153:
-                self.animation = 1
-                self.inJump = 0
-                self.jumpwait = 0
-        
+            if self.vel > 0:
+                self.rect.y -= 0.5*self.mass*(self.vel**2)
+            else:
+                self.rect.y += 0.5*self.mass*(self.vel**2)
+            for texts in group2:
+                if self.rect.bottom == texts.rect.top:
+                    self.isJump = 0
+                    self.animation = 1
+                    self.vel = 8
+                elif self.rect.top == texts.rect.bottom:
+                    self.vel = 0
+            self.vel -= 1
         if self.animation == 1:
             if self.animationtimer == 60:
                 self.image = self.images_default[4]
@@ -61,6 +65,4 @@ class Char(pygame.sprite.Sprite):
             elif self.animationtimer == 0:
                 self.image = self.images_default[0]
             self.animationtimer += 1
-        if self.rect.y == HEIGHT - 200:
-            self.jumpwait += 1
         self.NextJump += 0.75
