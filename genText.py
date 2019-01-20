@@ -1,10 +1,10 @@
 import pygame, colors
-
+from pygame.locals import Color
 class Text(pygame.sprite.Sprite):
     def __init__(self, text, x, y, colour, size): 
         pygame.sprite.Sprite.__init__(self)
-        self.FONT = pygame.font.SysFont('garamond', size)
-        txt = self.FONT.render(text, True, colors.white)
+        self.FONT = pygame.freetype.SysFont('garamond', size)
+        txt, rect = self.FONT.render(text, (255,255,255))
         WIDTH = txt.get_width()
         HEIGHT = txt.get_height()
         self.image = pygame.Surface((WIDTH, HEIGHT))

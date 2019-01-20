@@ -5,6 +5,7 @@ import time
 import random
 import main_menu
 import pygame, os, colors, char, genText
+import pygame.freetype
 
 
 class TweetStream(threading.Thread):
@@ -53,6 +54,8 @@ class TweetStream(threading.Thread):
             self.cached_index += 10
         random.shuffle(self.current_tweets)
 
+
+
 def main():
     WIDTH = 800
     HEIGHT = 600
@@ -64,6 +67,7 @@ def main():
 
 
     pygame.init()
+    pygame.freetype.init()
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Tweet Jump")
@@ -86,11 +90,12 @@ def main():
     # twitter fetching thread
     tweet_stream = TweetStream()
     tweet_stream.tags = ['triump', '@realDonaldTrump']
+    tweet_stream.cache_limit = 20
     tweet_stream.start()
 
     
     main_menu.menu(screen)
-    
+    text_timer = time.time()
     while running:
         # keep loop running at the right speed
         clock.tick(FPS)
@@ -105,8 +110,14 @@ def main():
                     main()
         
         tweets = tweet_stream.current_tweets
-        for txt in tweets:
-            all_text.add(genText)
+        if time.time() - text_timer > 5:
+            for txt in tweets[:5]:
+                rendered_text = genText.Text(txt, screen.get_width(), random.randint(0, screen.get_height()), colors.black, 40)
+                def add_text():
+                    all_text.add(rendered_text)
+                threading.Timer(random.randint(1,10), add_text).start()
+            text_timer = time.time()
+        
         print(tweets)
         screen.fill(colors.black)
         move1 -= SCROLL_SPEED
@@ -115,6 +126,11 @@ def main():
         screen.blit(background2, (move2,0))
         all_players.update(WIDTH, HEIGHT)
         all_text.update(SCROLL_SPEED)
+
+        for i, text in enumerate(all_text):
+            if text.rect.x  + text.rect.width < 0:
+                all_text.remove(text)
+
         all_players.draw(screen)
         all_text.draw(screen)
         if move2 == -1200:
